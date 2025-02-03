@@ -1,0 +1,103 @@
+local button = script.Parent  -- El botón donde se ha puesto el LocalScript
+
+-- Función para ejecutar algo cuando el botón es presionado
+local function onButtonClicked()
+	-- Recorrer todos los objetos del juego y desanclarlos si son partes
+	local function desanclarTodo()
+		-- Itera a través de todas las partes en el juego
+		for _, objeto in pairs(workspace:GetDescendants()) do
+			if objeto:IsA("BasePart") then  -- Verifica si el objeto es una parte
+				objeto.Anchored = false  -- Desancla la parte
+			end
+		end
+	end
+	-- Función para flingear a todos los jugadores
+	local function flingearJugadores()
+		-- Itera sobre todos los jugadores en el juego
+		for _, jugador in pairs(game.Players:GetPlayers()) do
+			if jugador.Character and jugador.Character:FindFirstChild("HumanoidRootPart") then
+				local humanoidRootPart = jugador.Character:FindFirstChild("HumanoidRootPart")
+
+				-- Crea un BodyVelocity para aplicar una fuerza
+				local bodyVelocity = Instance.new("BodyVelocity")
+				bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000)  -- Máxima fuerza que puede aplicar
+				bodyVelocity.Velocity = Vector3.new(
+					math.random(-100, 100),  -- Dirección aleatoria en X
+					math.random(50, 150),    -- Dirección aleatoria en Y (más fuerte para un "salto")
+					math.random(-100, 100)   -- Dirección aleatoria en Z
+				)
+				bodyVelocity.Parent = humanoidRootPart
+
+				-- Eliminar el BodyVelocity después de un tiempo (por ejemplo, 0.5 segundos)
+				game.Debris:AddItem(bodyVelocity, 0.5)
+			end
+		end
+	end
+	-- Crear y disparar una parte en todas direcciones
+	local function dispararPartes()
+		-- Configuración inicial
+		local numeroDePartes = 10  -- Número de partes a disparar
+		local fuerzaMaxima = 100  -- Máxima fuerza de disparo
+
+		-- Crear las partes y dispararlas
+		for i = 1, numeroDePartes do
+			local nuevaParte = Instance.new("Part")  -- Crear una nueva parte
+			nuevaParte.Size = Vector3.new(1, 1, 1)  -- Tamaño de la parte
+			nuevaParte.Position = Vector3.new(0, 10, 0)  -- Posición inicial (por ejemplo, en el aire)
+			nuevaParte.Anchored = false  -- Asegurarse de que no esté anclada
+			nuevaParte.CanCollide = true  -- Que pueda colisionar con otras partes
+			nuevaParte.Parent = game.Workspace  -- Colocar la parte en el Workspace
+
+			-- Crear un BodyVelocity para aplicar una fuerza
+			local bodyVelocity = Instance.new("BodyVelocity")
+			bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000)  -- Fuerza máxima
+			bodyVelocity.Velocity = Vector3.new(
+				math.random(-fuerzaMaxima, fuerzaMaxima),  -- Aleatorio en X
+				math.random(50, 150),  -- Aleatorio en Y (fuerza hacia arriba)
+				math.random(-fuerzaMaxima, fuerzaMaxima)   -- Aleatorio en Z
+			)
+			bodyVelocity.Parent = nuevaParte  -- Aplicar la fuerza a la parte
+
+			-- Eliminar la parte después de un tiempo (por ejemplo, 5 segundos)
+			game.Debris:AddItem(nuevaParte, 5)
+		end
+	end
+	-- Función para girar todas las partes rápidamente
+	local function girarTodoRapido()
+		-- Itera sobre todas las partes en el juego
+		for _, objeto in pairs(workspace:GetDescendants()) do
+			if objeto:IsA("BasePart") then  -- Asegúrate de que el objeto sea una parte (BasePart)
+				-- Crea un BodyGyro para aplicar la rotación
+				local bodyGyro = Instance.new("BodyGyro")
+				bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)  -- Máxima fuerza de torque
+				bodyGyro.CFrame = objeto.CFrame  -- Mantener la rotación relativa
+				bodyGyro.D = 10  -- Suavizado de la rotación
+				bodyGyro.P = 10000  -- Fuerza de rotación
+				bodyGyro.Parent = objeto  -- Aplica el BodyGyro a la parte
+
+				-- La rotación se mantiene incluso si el objeto no está anclado
+				objeto.Anchored = true
+			end
+		end
+	end
+
+	-- Ejecuta la función para girar todas las partes
+	girarTodoRapido()
+
+
+	-- Ejecutar la función para disparar partes
+	dispararPartes()
+
+
+	-- Llamar a la función para flingear a todos los jugadores
+	flingearJugadores()
+
+
+	-- Ejecutar la función para desanclar todas las partes
+	desanclarTodo()
+
+	-- Aquí puedes agregar el código que quieres ejecutar
+end
+
+-- Conectar la función al evento de clic del botón
+button.MouseButton1Click:Connect(onButtonClicked)
